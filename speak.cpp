@@ -4,6 +4,8 @@
 #include<sphelper.h>
 #include <map>
 #include <string>
+#include <algorithm>
+#include <cctype>
 
 
 int main() {
@@ -13,30 +15,30 @@ int main() {
         return -1;
     }
 
-    // Create an instance of the recognizer
-    ISpRecognizer* pRecognizer = NULL;
-    if (FAILED(::CoCreateInstance(CLSID_SpSharedRecognizer, NULL, CLSCTX_ALL, IID_ISpRecognizer, (void**)&pRecognizer))) {
-        std::cerr << "Failed to create recognizer instance!" << std::endl;
-        ::CoUninitialize();
-        return -1;
-    }
-    // Set recognizer input to the default audio input (microphone)
-    /*if (FAILED(pRecognizer->SetInput(NULL, TRUE))) {
-        std::cerr << "Failed to set input!" << std::endl;
-        pRecognizer->Release();
-        ::CoUninitialize();
-        return -1;
-    }*/
+    //// Create an instance of the recognizer
+    //ISpRecognizer* pRecognizer = NULL;
+    //if (FAILED(::CoCreateInstance(CLSID_SpSharedRecognizer, NULL, CLSCTX_ALL, IID_ISpRecognizer, (void**)&pRecognizer))) {
+    //    std::cerr << "Failed to create recognizer instance!" << std::endl;
+    //    ::CoUninitialize();
+    //    return -1;
+    //}
+    //// Set recognizer input to the default audio input (microphone)
+    ///*if (FAILED(pRecognizer->SetInput(NULL, TRUE))) {
+    //    std::cerr << "Failed to set input!" << std::endl;
+    //    pRecognizer->Release();
+    //    ::CoUninitialize();
+    //    return -1;
+    //}*/
 
-    // Create a speech recognition engine context
-    ISpRecoContext* pRecoContext = NULL;
+    //// Create a speech recognition engine context
+    //ISpRecoContext* pRecoContext = NULL;
 
-    if (FAILED(pRecognizer->CreateRecoContext(&pRecoContext))) {
-        std::cerr << "Failed to create recognition context!" << std::endl;
-        pRecognizer->Release();
-        ::CoUninitialize();
-        return -1;
-    }
+    //if (FAILED(pRecognizer->CreateRecoContext(&pRecoContext))) {
+    //    std::cerr << "Failed to create recognition context!" << std::endl;
+    //    pRecognizer->Release();
+    //    ::CoUninitialize();
+    //    return -1;
+    //}
 
 
 
@@ -70,14 +72,17 @@ int main() {
     {
         const wchar_t* textToSpeak = L"Good bye.";
         std::string userInput;
-        std::cout << "Enter your order: ";
+        std::cout << "Hello, Hoang. How can I help you?" << std::endl;
         std::getline(std::cin, userInput);
+        std::transform(userInput.begin(), userInput.end(), userInput.begin(),
+            [](unsigned char c) { return std::tolower(c); });
+
         
         int action = -1; // Default action if no match is found
-        if (userInput == "What day is today" || userInput == "Date" || userInput == "Day") {
+        if (userInput == "what day is today" || userInput == "date" || userInput == "day") {
             action = 2;
         }
-        else if (userInput == "Hello") {
+        else if (userInput == "hello") {
             action = 1;
         }
 
@@ -87,12 +92,22 @@ int main() {
                 textToSpeak = L"Hello, Hoang.";
                 break;
             case 2:
-                textToSpeak = L"Today is Thursday.";
+                textToSpeak = L"Today is Thursday."; 
                 break;
             default:
-                std::cout << "Invalid order!\n";
+                std::cout << "Sorry cannot understand!\n";
                 break;
         }    
+
+        if (textToSpeak != nullptr) {
+            std::wstring wideString(textToSpeak); // Convert wide char pointer to wstring
+            std::wcout << wideString << std::endl; // Output the wide string again
+        }
+        else {
+            std::wcout << "textToSpeak is nullptr" << std::endl;
+        }
+        
+
 
         // Release the voice
         hr = pVoice->Speak(textToSpeak, 0, NULL);
